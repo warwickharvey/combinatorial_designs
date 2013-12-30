@@ -41,7 +41,7 @@ class GolfInstance(models.Model):
         return (self.num_players - 1) / (self.group_size - 1)
 
 
-class GolfInstanceUpperBound(models.Model):
+class GolfUpperBound(models.Model):
     instance = models.ForeignKey(GolfInstance)
     submission_info = models.ForeignKey(SubmissionInfo)
     bound = models.IntegerField()
