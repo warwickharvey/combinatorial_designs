@@ -21,7 +21,7 @@ class SubmissionInfo(models.Model):
     timestamp = models.DateTimeField('date submitted', auto_now_add=True)
 
     def __unicode__(self):
-        return '%s submitter=%s citation=%s' % (`self.timestamp`, unicode(submitter), unicode(citation))
+        return '%s submitter=%s citation=%s' % (self.timestamp.date().isoformat(), unicode(self.submitter), unicode(self.citation))
 
 
 class GolfInstance(models.Model):
