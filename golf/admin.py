@@ -1,5 +1,5 @@
 from django.contrib import admin
-from golf_designs.models import User, Citation, SubmissionInfo, GolfInstance, GolfUpperBound, GolfLowerBound, GolfSolution
+from golf.models import User, Citation, SubmissionInfo, GolfInstance, GolfUpperBound, GolfLowerBound, GolfSolution
 
 admin.site.register(User)
 admin.site.register(Citation)

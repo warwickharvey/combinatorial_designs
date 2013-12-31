@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from golf_designs.models import GolfInstance
+from golf.models import GolfInstance
 
 class GolfInstanceMethodTests(TestCase):
 

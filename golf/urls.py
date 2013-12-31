@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from golf_designs import views
+from golf import views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from golf_designs.models import GolfInstance
+from golf.models import GolfInstance
 
 def index(request):
     """
@@ -8,7 +8,7 @@ def index(request):
     """
     instance_list = GolfInstance.objects.order_by('num_groups', 'group_size')
     context = {'instance_list': instance_list}
-    return render(request, 'golf_designs/index.html', context)
+    return render(request, 'golf/index.html', context)
 
 def detail(request, num_groups, group_size):
     """
@@ -18,5 +18,5 @@ def detail(request, num_groups, group_size):
     context = {
         'instance': instance,
     }
-    return render(request, 'golf_designs/detail.html', context)
+    return render(request, 'golf/detail.html', context)
 
