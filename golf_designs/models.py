@@ -27,6 +27,8 @@ class SubmissionInfo(models.Model):
 class GolfInstance(models.Model):
     num_groups = models.IntegerField()
     group_size = models.IntegerField()
+    _upper_bound = None
+    _lower_bound = None
 
     class Meta:
         unique_together = ('num_groups', 'group_size')
@@ -60,24 +62,52 @@ class GolfInstance(models.Model):
         if bounds:
             return bounds[0]
         else:
-            return {
-                'num_rounds': 'unknown',
-                'submission_info': {'citation': 'No info'},
-            }
+            return DummyBound()
 
-    def get_lower_bound(self):
-        """
-        Returns the best lower bound for this instance
-        """
-        bounds = GolfLowerBound.objects.filter(instance_id=self.id).order_by('-num_rounds')
-        return self.bound_if_defined(bounds)
-
-    def get_upper_bound(self):
+    def upper_bound(self):
         """
         Returns the best upper bound for this instance
         """
-        bounds = GolfUpperBound.objects.filter(instance_id=self.id).order_by('num_rounds')
-        return self.bound_if_defined(bounds)
+        if not self._upper_bound:
+            bounds = GolfUpperBound.objects.filter(instance_id=self.id).order_by('num_rounds')
+            self._upper_bound = self.bound_if_defined(bounds)
+        return self._upper_bound
+
+    def lower_bound(self):
+        """
+        Returns the best lower bound for this instance
+        """
+        if not self._lower_bound:
+            bounds = GolfLowerBound.objects.filter(instance_id=self.id).order_by('-num_rounds', 'golfsolution')
+            self._lower_bound = self.bound_if_defined(bounds)
+        return self._lower_bound
+
+    def solution(self):
+        """
+        Returns the solution (if known) for the best lower bound for this
+        instance
+        """
+        try:
+            solution = self.lower_bound().golfsolution
+        except:
+            solution = None
+        return solution
+
+    def is_closed(self):
+        """
+        Is a closed instance (upper and lower bounds are the same)
+        """
+        l = self.lower_bound()
+        u = self.upper_bound()
+        if isinstance(l, DummyBound) or isinstance(u, DummyBound):
+            return False
+        else:
+            return u.num_rounds == l.num_rounds
+
+
+class DummyBound(object):
+    num_rounds = 'unknown'
+    submission_info = {'citation': 'No info'}
 
 
 class GolfBound(models.Model):

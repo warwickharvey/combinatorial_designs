@@ -15,17 +15,8 @@ def detail(request, num_groups, group_size):
     Display details of the given golf instance
     """
     instance = get_object_or_404(GolfInstance, num_groups=num_groups, group_size=group_size)
-    lower_bound = instance.get_lower_bound()
-    try:
-        solution = lower_bound.golfsolution
-    except:
-        solution = None
     context = {
         'instance': instance,
-        'closed': False,
-        'lower_bound': lower_bound,
-        'upper_bound': instance.get_upper_bound(),
-        'solution': solution,
     }
     return render(request, 'golf_designs/detail.html', context)
 
