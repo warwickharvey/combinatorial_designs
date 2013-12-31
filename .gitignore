@@ -1,0 +1,7 @@
+.*.sw*
+*.pyc
+db.sqlite3
+.Python
+bin
+include
+lib

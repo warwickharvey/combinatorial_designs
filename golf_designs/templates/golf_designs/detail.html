@@ -1,0 +1,17 @@
+<h1>Golf {{ instance.name }}</h1>
+
+<p>{{ instance.num_groups }} groups of {{ instance.group_size }}</p>
+
+{% if instance.is_closed %}
+    <p><b>Closed</b> instance</p>
+{% endif %}
+
+<p>Lower bound <b>{{ instance.lower_bound.num_rounds }}</b>: {{ instance.lower_bound.submission_info.citation }}
+
+<p>Upper bound <b>{{ instance.upper_bound.num_rounds }}</b>: {{ instance.upper_bound.submission_info.citation }}
+
+{% if instance.solution %}
+    <p>Printing solution not implemented yet.</p>
+{% else %}
+    <p>Solution not available.</p>
+{% endif %}
