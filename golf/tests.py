@@ -4,40 +4,40 @@ from golf.models import User, Citation, SubmissionInfo
 from golf.models import GolfInstance, GolfSolution
 from golf.models import DummyBound, GolfUpperBound, GolfLowerBound
 
+# TODO: Override the setUp() or setUpClass() methods to define some
+# users/citations/submission_infos to use in the tests, rather than
+# defining & using the following methods?
+
+def make_dummy_user():
+    """
+    Make a User record when we don't care about the contents
+    """
+    # TODO: Randomise this so that not all records are the same
+    user = User(name='Foo Bar', email='foo@bar.baz')
+    user.save()
+    return user
+
+def make_dummy_citation():
+    """
+    Make a Citation record when we don't care about the contents
+    """
+    # TODO: Randomise this so that not all records are the same
+    citation = Citation(citation='Foo N. Bar, My Results, Journal of Baz, 2013')
+    citation.save()
+    return citation
+
+def make_dummy_submission_info():
+    """
+    Make a SubmissionInfo record when we don't care about the contents
+    """
+    citation = make_dummy_citation()
+    submitter = make_dummy_user()
+    submission_info = SubmissionInfo(citation=citation, submitter=submitter)
+    submission_info.save()
+    return submission_info
+
+
 class GolfInstanceMethodTests(TestCase):
-
-    # TODO: Override the setUp() or setUpClass() methods to define some
-    # users/citations/submission_infos to use in the tests, rather than
-    # defining & using the following methods?
-
-    def make_dummy_user(self):
-        """
-        Make a User record when we don't care about the contents
-        """
-        # TODO: Randomise this so that not all records are the same
-        user = User(name='Foo Bar', email='foo@bar.baz')
-        user.save()
-        return user
-
-    def make_dummy_citation(self):
-        """
-        Make a Citation record when we don't care about the contents
-        """
-        # TODO: Randomise this so that not all records are the same
-        citation = Citation(citation='Foo N. Bar, My Results, Journal of Baz, 2013')
-        citation.save()
-        return citation
-
-    def make_dummy_submission_info(self):
-        """
-        Make a SubmissionInfo record when we don't care about the contents
-        """
-        citation = self.make_dummy_citation()
-        submitter = self.make_dummy_user()
-        submission_info = SubmissionInfo(citation=citation, submitter=submitter)
-        submission_info.save()
-        return submission_info
-
 
     ##
     ## Name tests
@@ -94,7 +94,7 @@ class GolfInstanceMethodTests(TestCase):
         upper_bound_5x4 = GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         )
         upper_bound_5x4.save()
         self.assertEqual(instance_5x4.upper_bound().num_rounds, 5)
@@ -109,17 +109,17 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=6,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=7,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertEqual(instance_5x4.upper_bound().num_rounds, 5)
 
@@ -147,7 +147,7 @@ class GolfInstanceMethodTests(TestCase):
         lower_bound_5x4 = GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         )
         lower_bound_5x4.save()
         self.assertEqual(instance_5x4.lower_bound().num_rounds, 5)
@@ -162,17 +162,17 @@ class GolfInstanceMethodTests(TestCase):
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=3,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertEqual(instance_5x4.lower_bound().num_rounds, 5)
 
@@ -208,12 +208,12 @@ class GolfInstanceMethodTests(TestCase):
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertIsNone(instance_5x4.solution())
 
@@ -227,13 +227,13 @@ class GolfInstanceMethodTests(TestCase):
         GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 4',
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertIsNone(instance_5x4.solution())
 
@@ -247,18 +247,18 @@ class GolfInstanceMethodTests(TestCase):
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertIsNotNone(instance_5x4.solution())
         self.assertEqual(instance_5x4.solution().solution, 'solution 5')
@@ -273,19 +273,19 @@ class GolfInstanceMethodTests(TestCase):
         GolfSolution(
             instance=instance_5x4,
             num_rounds=3,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 3',
         ).save()
         GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
         GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 4',
         ).save()
         self.assertIsNotNone(instance_5x4.solution())
@@ -315,7 +315,7 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -329,7 +329,7 @@ class GolfInstanceMethodTests(TestCase):
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -343,7 +343,7 @@ class GolfInstanceMethodTests(TestCase):
         GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
         self.assertFalse(instance_5x4.is_closed())
@@ -358,12 +358,12 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertTrue(instance_5x4.is_closed())
 
@@ -377,12 +377,12 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
         self.assertTrue(instance_5x4.is_closed())
@@ -397,12 +397,12 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -416,13 +416,72 @@ class GolfInstanceMethodTests(TestCase):
         GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
         ).save()
         GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
-            submission_info=self.make_dummy_submission_info(),
+            submission_info=make_dummy_submission_info(),
             solution='solution 4',
         ).save()
         self.assertFalse(instance_5x4.is_closed())
+
+
+class GolfLowerBoundMethodTests(TestCase):
+
+    def setUp(self):
+        self.instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        self.instance_5x4.save()
+
+    def test_as_solution_when_just_bound(self):
+        """
+        as_solution() should return None if the bound is just a bound and does
+        not have a corresponding GolfSolution
+        """
+        lower_bound_5x4 = GolfLowerBound(
+            instance=self.instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+        )
+        lower_bound_5x4.save()
+        self.assertIsNone(lower_bound_5x4.as_solution())
+
+    def test_as_solution_when_solution_exists(self):
+        """
+        as_solution() should return the corresponding GolfSolution when it
+        exists
+        """
+        GolfSolution(
+            instance=self.instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+            solution='solution 5',
+        ).save()
+        lower_bound_5x4 = GolfLowerBound.objects.all()[0]
+        solution = lower_bound_5x4.as_solution()
+        self.assertIsNotNone(solution)
+        self.assertEqual(solution.solution, 'solution 5')
+
+
+
+class GolfSolutionMethodTests(TestCase):
+
+    def setUp(self):
+        self.instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        self.instance_5x4.save()
+
+    def test_as_solution(self):
+        """
+        as_solution() should return the object itself
+        """
+        solution_5x4 = GolfSolution(
+            instance=self.instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+            solution='solution 5',
+        )
+        solution_5x4.save()
+        solution = solution_5x4.as_solution()
+        self.assertIsNotNone(solution)
+        self.assertIs(solution, solution_5x4)
 
