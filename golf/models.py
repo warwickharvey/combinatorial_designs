@@ -54,32 +54,40 @@ class GolfInstance(models.Model):
     def trivial_upper_bound(self):
         return (self.num_players - 1) / (self.group_size - 1)
 
-    def bound_if_defined(self, bounds):
-        """
-        Returns the first GolfBound instance in bounds if it exists;
-        otherwise returns a dummy instance
-        """
-        if bounds:
-            return bounds[0]
-        else:
-            return DummyBound()
-
     def upper_bound(self):
         """
         Returns the best upper bound for this instance
         """
         if not self._upper_bound:
             bounds = GolfUpperBound.objects.filter(instance_id=self.id).order_by('num_rounds')
-            self._upper_bound = self.bound_if_defined(bounds)
+            if bounds:
+                self._upper_bound = bounds[0]
+            else:
+                self._upper_bound = DummyBound()
         return self._upper_bound
 
     def lower_bound(self):
         """
-        Returns the best lower bound for this instance
+        Returns the best lower bound for this instance, giving preference to
+        those with solutions
         """
         if not self._lower_bound:
-            bounds = GolfLowerBound.objects.filter(instance_id=self.id).order_by('-num_rounds', 'golfsolution')
-            self._lower_bound = self.bound_if_defined(bounds)
+            # We don't seem to be able to easily order by whether or not there
+            # is a solution corresponding to the bound, so just give preference
+            # to solutions manually.
+            bounds = GolfLowerBound.objects.filter(instance_id=self.id).order_by('-num_rounds')
+            if not bounds:
+                self._lower_bound = DummyBound()
+            else:
+                for bound in bounds:
+                    if not self._lower_bound:
+                        self._lower_bound = bound
+                    if bound.num_rounds != self._lower_bound.num_rounds:
+                        break
+                    solution = bound.as_solution()
+                    if solution:
+                        self._lower_bound = solution
+                        break
         return self._lower_bound
 
     def solution(self):
@@ -87,11 +95,7 @@ class GolfInstance(models.Model):
         Returns the solution (if known) for the best lower bound for this
         instance
         """
-        try:
-            solution = self.lower_bound().golfsolution
-        except:
-            solution = None
-        return solution
+        return self.lower_bound().as_solution()
 
     def is_closed(self):
         """
@@ -109,6 +113,9 @@ class DummyBound(object):
     num_rounds = 'unknown'
     submission_info = {'citation': 'No info'}
 
+    def as_solution(self):
+        return None
+
 
 class GolfBound(models.Model):
     instance = models.ForeignKey(GolfInstance)
@@ -125,9 +132,21 @@ class GolfLowerBound(GolfBound):
     def __unicode__(self):
         return '%s >= %d' % (unicode(self.instance), self.num_rounds)
 
+    def as_solution(self):
+        """
+        Returns the GolfSolution corresponding to this bound, if there is one
+        """
+        try:
+            solution = self.golfsolution
+        except:
+            solution = None
+        return solution
+
 
 class GolfSolution(GolfLowerBound):
     solution = models.TextField()
     normalised_solution = models.TextField(null=True)
 
+    def as_solution(self):
+        return self
 
