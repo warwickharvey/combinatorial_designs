@@ -1,4 +1,9 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
+
+import gettext
+_ = gettext.gettext
 
 class User(models.Model):
     name = models.CharField(max_length=80)
@@ -25,8 +30,8 @@ class SubmissionInfo(models.Model):
 
 
 class GolfInstance(models.Model):
-    num_groups = models.IntegerField()
-    group_size = models.IntegerField()
+    num_groups = models.IntegerField(validators=[MinValueValidator(2)])
+    group_size = models.IntegerField(validators=[MinValueValidator(2)])
     _upper_bound = None
     _lower_bound = None
 
@@ -36,8 +41,25 @@ class GolfInstance(models.Model):
             ['num_groups', 'group_size'],
         ]
 
+    def __init__(self, *args, **kwargs):
+        super(GolfInstance, self).__init__(*args, **kwargs)
+        self.full_clean()
+
     def __unicode__(self):
         return '%dx%d' % (self.num_groups, self.group_size)
+
+    def clean(self):
+        super(GolfInstance, self).clean()
+        # Don't allow instances with fewer groups than the group size
+        if self.num_groups < self.group_size:
+            raise ValidationError(
+                _('Golf instances must have at least as many groups as the group size.'),
+                code='fewer_groups_than_group_size',
+            )
+
+    def save(self):
+        self.full_clean()
+        super(GolfInstance, self).save()
 
     def name(self):
         """

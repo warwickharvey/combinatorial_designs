@@ -1,8 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from golf.models import User, Citation, SubmissionInfo
-from golf.models import GolfInstance, GolfSolution
-from golf.models import DummyBound, GolfUpperBound, GolfLowerBound
+import golf.models as golf
 
 # TODO: Override the setUp() or setUpClass() methods to define some
 # users/citations/submission_infos to use in the tests, rather than
@@ -13,7 +12,7 @@ def make_dummy_user():
     Make a User record when we don't care about the contents
     """
     # TODO: Randomise this so that not all records are the same
-    user = User(name='Foo Bar', email='foo@bar.baz')
+    user = golf.User(name='Foo Bar', email='foo@bar.baz')
     user.save()
     return user
 
@@ -22,7 +21,7 @@ def make_dummy_citation():
     Make a Citation record when we don't care about the contents
     """
     # TODO: Randomise this so that not all records are the same
-    citation = Citation(citation='Foo N. Bar, My Results, Journal of Baz, 2013')
+    citation = golf.Citation(citation='Foo N. Bar, My Results, Journal of Baz, 2013')
     citation.save()
     return citation
 
@@ -32,12 +31,55 @@ def make_dummy_submission_info():
     """
     citation = make_dummy_citation()
     submitter = make_dummy_user()
-    submission_info = SubmissionInfo(citation=citation, submitter=submitter)
+    submission_info = golf.SubmissionInfo(citation=citation, submitter=submitter)
     submission_info.save()
     return submission_info
 
 
 class GolfInstanceMethodTests(TestCase):
+
+    ##
+    ## Validation tests
+    ## 
+
+    def test_group_size_bigger_than_num_groups(self):
+        """
+        Should not be able to create an instance with a larger group size than
+        number of groups (these instances are trivial - exactly one round is
+        possible)
+        """
+        with self.assertRaises(ValidationError):
+            instance_4x5 = golf.GolfInstance(num_groups=4, group_size=5)
+            instance_4x5.save()
+
+    def test_small_num_groups(self):
+        """
+        Should not be able to create an instance with less than 2 groups
+        """
+        self.assertRaises(ValidationError, golf.GolfInstance, num_groups=1, group_size=4)
+
+    def test_small_group_size(self):
+        """
+        Should not be able to create an instance with a group size smaller than
+        2
+        """
+        self.assertRaises(ValidationError, golf.GolfInstance, num_groups=5, group_size=1)
+
+    def test_valid_instances(self):
+        """
+        Should be able to create instances with at least two groups of size at
+        least two, where the group size does not exceed the number of groups
+        """
+        instance_2x2 = golf.GolfInstance(num_groups=2, group_size=2)
+        instance_2x2.save()
+        self.assertIsNotNone(instance_2x2)
+        instance_20x2 = golf.GolfInstance(num_groups=20, group_size=2)
+        instance_20x2.save()
+        self.assertIsNotNone(instance_20x2)
+        instance_20x20 = golf.GolfInstance(num_groups=20, group_size=20)
+        instance_20x20.save()
+        self.assertIsNotNone(instance_20x20)
+
 
     ##
     ## Name tests
@@ -47,10 +89,10 @@ class GolfInstanceMethodTests(TestCase):
         """
         name() should return a suitable human-readable name for an instance
         """
-        instance_3x2 = GolfInstance(num_groups=3, group_size=2)
+        instance_3x2 = golf.GolfInstance(num_groups=3, group_size=2)
         instance_3x2.save()
         self.assertEqual(instance_3x2.name(), '3x2')
-        instance_8x4 = GolfInstance(num_groups=8, group_size=4)
+        instance_8x4 = golf.GolfInstance(num_groups=8, group_size=4)
         instance_8x4.save()
         self.assertEqual(instance_8x4.name(), '8x4')
 
@@ -63,10 +105,10 @@ class GolfInstanceMethodTests(TestCase):
         """
         num_players() should return the right number of players for an instance
         """
-        instance_3x2 = GolfInstance(num_groups=3, group_size=2)
+        instance_3x2 = golf.GolfInstance(num_groups=3, group_size=2)
         instance_3x2.save()
         self.assertEqual(instance_3x2.num_players(), 6)
-        instance_8x4 = GolfInstance(num_groups=8, group_size=4)
+        instance_8x4 = golf.GolfInstance(num_groups=8, group_size=4)
         instance_8x4.save()
         self.assertEqual(instance_8x4.num_players(), 32)
 
@@ -80,18 +122,18 @@ class GolfInstanceMethodTests(TestCase):
         upper_bound() should return a dummy bound if no upper bound defined for
         an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        self.assertEqual(type(instance_5x4.upper_bound()), DummyBound)
+        self.assertEqual(type(instance_5x4.upper_bound()), golf.DummyBound)
 
     def test_upper_bound_with_single_bound(self):
         """
         upper_bound() should return the bound when only one defined for an
         instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        upper_bound_5x4 = GolfUpperBound(
+        upper_bound_5x4 = golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -104,19 +146,19 @@ class GolfInstanceMethodTests(TestCase):
         upper_bound() should return the lowest bound when multiple bounds are
         defined for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=6,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=7,
             submission_info=make_dummy_submission_info(),
@@ -133,18 +175,18 @@ class GolfInstanceMethodTests(TestCase):
         lower_bound() should return a dummy bound if no lower bound defined for
         an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        self.assertEqual(type(instance_5x4.lower_bound()), DummyBound)
+        self.assertEqual(type(instance_5x4.lower_bound()), golf.DummyBound)
 
     def test_lower_bound_with_single_bound(self):
         """
         lower_bound() should return the bound when only one defined for an
         instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        lower_bound_5x4 = GolfLowerBound(
+        lower_bound_5x4 = golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -157,19 +199,19 @@ class GolfInstanceMethodTests(TestCase):
         lower_bound() should return the highest bound when multiple bounds are
         defined for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=3,
             submission_info=make_dummy_submission_info(),
@@ -181,7 +223,7 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return None if no lower bound defined for
         an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         self.assertIsNone(instance_5x4.solution())
 
 
@@ -194,7 +236,7 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return None if no lower bound defined for
         an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
         self.assertIsNone(instance_5x4.solution())
 
@@ -203,14 +245,14 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return None if only lower bounds (not solutions) are
         defined for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -222,15 +264,15 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return None if a lower bound (not solution) for an
         instance is better than the best solution
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
             solution='solution 4',
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -242,20 +284,20 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return a solution if a solution is among the best
         lower bounds for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -268,21 +310,21 @@ class GolfInstanceMethodTests(TestCase):
         solution() should return the solution with the highest bound when
         multiple solutions are defined for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=3,
             submission_info=make_dummy_submission_info(),
             solution='solution 3',
         ).save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
@@ -301,7 +343,7 @@ class GolfInstanceMethodTests(TestCase):
         """
         is_closed() should return False if no bounds defined for an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -310,9 +352,9 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return False if only an upper bound is defined for
         an instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -324,9 +366,9 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return False if only a lower bound is defined for an
         instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -338,9 +380,9 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return False if only a solution is defined for an
         instance
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -353,14 +395,14 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return True if upper and lower bounds are defined
         for an instance and the bounds match
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -372,14 +414,14 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return True if an upper bound and a solution are
         defined for an instance and the bounds match
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -392,14 +434,14 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return False if upper and lower bounds are defined
         for an instance but the bounds don't match
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfLowerBound(
+        golf.GolfLowerBound(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
@@ -411,14 +453,14 @@ class GolfInstanceMethodTests(TestCase):
         is_closed() should return False if an upper bound and a solution are
         defined for an instance but the bounds don't match
         """
-        instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         instance_5x4.save()
-        GolfUpperBound(
+        golf.GolfUpperBound(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        GolfSolution(
+        golf.GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
@@ -430,7 +472,7 @@ class GolfInstanceMethodTests(TestCase):
 class GolfLowerBoundMethodTests(TestCase):
 
     def setUp(self):
-        self.instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        self.instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         self.instance_5x4.save()
 
     def test_as_solution_when_just_bound(self):
@@ -438,7 +480,7 @@ class GolfLowerBoundMethodTests(TestCase):
         as_solution() should return None if the bound is just a bound and does
         not have a corresponding GolfSolution
         """
-        lower_bound_5x4 = GolfLowerBound(
+        lower_bound_5x4 = golf.GolfLowerBound(
             instance=self.instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
@@ -451,13 +493,13 @@ class GolfLowerBoundMethodTests(TestCase):
         as_solution() should return the corresponding GolfSolution when it
         exists
         """
-        GolfSolution(
+        golf.GolfSolution(
             instance=self.instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
             solution='solution 5',
         ).save()
-        lower_bound_5x4 = GolfLowerBound.objects.all()[0]
+        lower_bound_5x4 = golf.GolfLowerBound.objects.all()[0]
         solution = lower_bound_5x4.as_solution()
         self.assertIsNotNone(solution)
         self.assertEqual(solution.solution, 'solution 5')
@@ -467,14 +509,14 @@ class GolfLowerBoundMethodTests(TestCase):
 class GolfSolutionMethodTests(TestCase):
 
     def setUp(self):
-        self.instance_5x4 = GolfInstance(num_groups=5, group_size=4)
+        self.instance_5x4 = golf.GolfInstance(num_groups=5, group_size=4)
         self.instance_5x4.save()
 
     def test_as_solution(self):
         """
         as_solution() should return the object itself
         """
-        solution_5x4 = GolfSolution(
+        solution_5x4 = golf.GolfSolution(
             instance=self.instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
