@@ -20,9 +20,18 @@ class Citation(models.Model):
         return self.citation
 
 
+class ConstructionInfo(models.Model):
+    id = models.CharField(primary_key=True, max_length=80)
+    version = models.IntegerField()
+
+    def __unicode__(self):
+        return '%s, version %d' % (self.id, self.version)
+
+
 class SubmissionInfo(models.Model):
     citation = models.ForeignKey(Citation)
     submitter = models.ForeignKey(User)
+    construction = models.ForeignKey(ConstructionInfo, null=True)
     timestamp = models.DateTimeField('date submitted', auto_now_add=True)
 
     def __unicode__(self):
@@ -43,7 +52,11 @@ class GolfInstance(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(GolfInstance, self).__init__(*args, **kwargs)
-        self.full_clean()
+        # Can't do a full_clean() or validation complains about already having
+        # an instance with this ID, etc. when loading an instance from the
+        # database, but validate what we can...
+        self.clean_fields()
+        self.clean()
 
     def __unicode__(self):
         return '%dx%d' % (self.num_groups, self.group_size)
@@ -57,9 +70,9 @@ class GolfInstance(models.Model):
                 code='fewer_groups_than_group_size',
             )
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.full_clean()
-        super(GolfInstance, self).save()
+        super(GolfInstance, self).save(*args, **kwargs)
 
     def name(self):
         """
@@ -72,9 +85,6 @@ class GolfInstance(models.Model):
         Number of players for this instance
         """
         return self.num_groups * self.group_size
-
-    def trivial_upper_bound(self):
-        return (self.num_players - 1) / (self.group_size - 1)
 
     def upper_bound(self):
         """
