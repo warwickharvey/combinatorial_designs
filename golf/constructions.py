@@ -12,6 +12,7 @@ class Constructor(object):
     """
     _submission_info = None
 
+    @property
     def submission_info(self):
         """
         Returns a SubmissionInfo instance for use by the constructor.
@@ -68,7 +69,7 @@ class TrivialSolutionConstructor(Constructor):
     def do_construct(self, instance):
         # TODO: Actually construct a solution rather than providing just the
         # bound
-        return models.GolfLowerBound(instance=instance, submission_info=self.submission_info(), num_rounds=2)
+        return models.GolfLowerBound(instance=instance, submission_info=self.submission_info, num_rounds=2)
 
 
 class TrivialUpperBoundConstructor(Constructor):
@@ -83,8 +84,8 @@ class TrivialUpperBoundConstructor(Constructor):
     description = 'Trivial upper bound'
 
     def do_construct(self, instance):
-        bound = (instance.num_players() - 1) / (instance.group_size - 1)
-        return models.GolfUpperBound(instance=instance, submission_info=self.submission_info(), num_rounds=bound)
+        bound = (instance.num_players - 1) / (instance.group_size - 1)
+        return models.GolfUpperBound(instance=instance, submission_info=self.submission_info, num_rounds=bound)
 
 
 class Constructors(object):
@@ -94,6 +95,7 @@ class Constructors(object):
     _constructors = None
     _instances = None
 
+    @property
     def constructors(self):
         if not self._constructors:
             self._constructors = [
@@ -102,6 +104,7 @@ class Constructors(object):
             ]
         return self._constructors
 
+    @property
     def instances(self):
         """
         Returns a list of all instances the constructors should be run on
@@ -121,8 +124,8 @@ class Constructors(object):
         """
         Run all constructors on all instances
         """
-        for constructor in self.constructors():
+        for constructor in self.constructors:
             constructor.clear_constructions()
-            for instance in self.instances():
+            for instance in self.instances:
                 constructor.construct(instance)
 

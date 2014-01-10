@@ -45,6 +45,25 @@ def make_instance(num_groups, group_size):
     return instance
 
 
+solution_string_4x3_4="""
+0,1,2|3,4,5|6,7,8|9,10,11
+0,3,6|1,4,9|2,7,10|5,8,11
+0,8,9|1,3,7|2,4,11|5,6,10
+0,4,10|1,6,11|2,3,8|5,7,9
+""".strip()
+
+solution_string_5x4_5="""
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11,14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip()
+
+solution_string_5x4_3 = '\n'.join(solution_string_5x4_5.split()[:3])
+solution_string_5x4_4 = '\n'.join(solution_string_5x4_5.split()[:4])
+
+
 class GolfInstanceMethodTests(TestCase):
 
     ##
@@ -106,12 +125,12 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_num_players_for_instance(self):
         """
-        num_players() should return the right number of players for an instance
+        num_players should return the right number of players for an instance
         """
         instance_3x2 = make_instance(3, 2)
-        self.assertEqual(instance_3x2.num_players(), 6)
+        self.assertEqual(instance_3x2.num_players, 6)
         instance_8x4 = make_instance(8, 4)
-        self.assertEqual(instance_8x4.num_players(), 32)
+        self.assertEqual(instance_8x4.num_players, 32)
 
 
     ##
@@ -120,15 +139,15 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_undefined_upper_bound(self):
         """
-        upper_bound() should return a dummy bound if no upper bound defined for
+        upper_bound should return a dummy bound if no upper bound defined for
         an instance
         """
         instance_5x4 = make_instance(5, 4)
-        self.assertEqual(type(instance_5x4.upper_bound()), models.DummyBound)
+        self.assertEqual(type(instance_5x4.upper_bound), models.DummyBound)
 
     def test_upper_bound_with_single_bound(self):
         """
-        upper_bound() should return the bound when only one defined for an
+        upper_bound should return the bound when only one defined for an
         instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -138,11 +157,11 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
         )
         upper_bound_5x4.save()
-        self.assertEqual(instance_5x4.upper_bound().num_rounds, 5)
+        self.assertEqual(instance_5x4.upper_bound.num_rounds, 5)
 
     def test_upper_bound_with_multiple_bounds(self):
         """
-        upper_bound() should return the lowest bound when multiple bounds are
+        upper_bound should return the lowest bound when multiple bounds are
         defined for an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -161,7 +180,7 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=7,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertEqual(instance_5x4.upper_bound().num_rounds, 5)
+        self.assertEqual(instance_5x4.upper_bound.num_rounds, 5)
 
 
     ##
@@ -170,15 +189,15 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_undefined_lower_bound(self):
         """
-        lower_bound() should return a dummy bound if no lower bound defined for
+        lower_bound should return a dummy bound if no lower bound defined for
         an instance
         """
         instance_5x4 = make_instance(5, 4)
-        self.assertEqual(type(instance_5x4.lower_bound()), models.DummyBound)
+        self.assertEqual(type(instance_5x4.lower_bound), models.DummyBound)
 
     def test_lower_bound_with_single_bound(self):
         """
-        lower_bound() should return the bound when only one defined for an
+        lower_bound should return the bound when only one defined for an
         instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -188,11 +207,11 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
         )
         lower_bound_5x4.save()
-        self.assertEqual(instance_5x4.lower_bound().num_rounds, 5)
+        self.assertEqual(instance_5x4.lower_bound.num_rounds, 5)
 
     def test_lower_bound_with_multiple_bounds(self):
         """
-        lower_bound() should return the highest bound when multiple bounds are
+        lower_bound should return the highest bound when multiple bounds are
         defined for an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -211,7 +230,7 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=3,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertEqual(instance_5x4.lower_bound().num_rounds, 5)
+        self.assertEqual(instance_5x4.lower_bound.num_rounds, 5)
 
     def test_solution_for_undefined_lower_bound(self):
         """
@@ -262,7 +281,7 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
-            solution='solution 4',
+            solution_string=solution_string_5x4_4,
         ).save()
         models.GolfLowerBound(
             instance=instance_5x4,
@@ -286,7 +305,7 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         ).save()
         models.GolfLowerBound(
             instance=instance_5x4,
@@ -294,7 +313,7 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
         ).save()
         self.assertIsNotNone(instance_5x4.solution())
-        self.assertEqual(instance_5x4.solution().solution, 'solution 5')
+        self.assertEqual(instance_5x4.solution().solution_string, solution_string_5x4_5)
 
     def test_solution_with_multiple_solutions(self):
         """
@@ -306,23 +325,23 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=3,
             submission_info=make_dummy_submission_info(),
-            solution='solution 3',
+            solution_string=solution_string_5x4_3,
         ).save()
         models.GolfSolution(
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         ).save()
         models.GolfSolution(
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
-            solution='solution 4',
+            solution_string=solution_string_5x4_4,
         ).save()
         self.assertIsNotNone(instance_5x4.solution())
         self.assertEqual(instance_5x4.solution().num_rounds, 5)
-        self.assertEqual(instance_5x4.solution().solution, 'solution 5')
+        self.assertEqual(instance_5x4.solution().solution_string, solution_string_5x4_5)
 
 
     ##
@@ -372,7 +391,7 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         ).save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -409,7 +428,7 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         ).save()
         self.assertTrue(instance_5x4.is_closed())
 
@@ -446,7 +465,7 @@ class GolfInstanceMethodTests(TestCase):
             instance=instance_5x4,
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
-            solution='solution 4',
+            solution_string=solution_string_5x4_4,
         ).save()
         self.assertFalse(instance_5x4.is_closed())
 
@@ -478,17 +497,18 @@ class GolfLowerBoundMethodTests(TestCase):
             instance=self.instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         ).save()
         lower_bound_5x4 = models.GolfLowerBound.objects.all()[0]
         solution = lower_bound_5x4.as_solution()
         self.assertIsNotNone(solution)
-        self.assertEqual(solution.solution, 'solution 5')
+        self.assertEqual(solution.solution_string, solution_string_5x4_5)
 
 
 class GolfSolutionMethodTests(TestCase):
 
     def setUp(self):
+        self.instance_4x3 = make_instance(4, 3)
         self.instance_5x4 = make_instance(5, 4)
 
     def test_as_solution(self):
@@ -499,12 +519,38 @@ class GolfSolutionMethodTests(TestCase):
             instance=self.instance_5x4,
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
-            solution='solution 5',
+            solution_string=solution_string_5x4_5,
         )
         solution_5x4.save()
         solution = solution_5x4.as_solution()
         self.assertIsNotNone(solution)
         self.assertIs(solution, solution_5x4)
+
+    def test_validate_not_enough_rounds(self):
+        """
+        validate_solution_string() should raise a ValidationError if the
+        solution does not have enough rounds
+        """
+        solution_5x4 = models.GolfSolution(
+            instance=self.instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+            solution_string=solution_string_5x4_4,
+        )
+        self.assertRaises(ValidationError, solution_5x4.save)
+
+    def test_validate_too_many_rounds(self):
+        """
+        validate_solution_string() should raise a ValidationError if the
+        solution has too many rounds
+        """
+        solution_5x4 = models.GolfSolution(
+            instance=self.instance_5x4,
+            num_rounds=4,
+            submission_info=make_dummy_submission_info(),
+            solution_string=solution_string_5x4_5,
+        )
+        self.assertRaises(ValidationError, solution_5x4.save)
 
 
 class ConstructorMethodTests(TestCase):
@@ -596,7 +642,7 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         """
         instances() should make and return a suitable set of instances
         """
-        instances = self.constructors.instances()
+        instances = self.constructors.instances
         self.check_instance_in_instances(2, 2, instances)
         self.check_instance_in_instances(20, 2, instances)
         self.check_instance_in_instances(20, 20, instances)
@@ -608,7 +654,7 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         instance_3x2 = make_instance(3, 2)
         instance_5x4 = make_instance(5, 4)
         instance_8x4 = make_instance(8, 4)
-        instances = self.constructors.instances()
+        instances = self.constructors.instances
         self.assertIn(instance_3x2, instances)
         self.assertIn(instance_5x4, instances)
         self.assertIn(instance_8x4, instances)
@@ -621,16 +667,16 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         """
         instances() should return the same instances if it's already been run
         """
-        instances = self.constructors.instances()
-        self.assertIs(self.constructors.instances(), instances)
+        instances = self.constructors.instances
+        self.assertIs(self.constructors.instances, instances)
 
     def test_instances_another_copy_already_run(self):
         """
         instances() should return the same instances as another instance of the
         class
         """
-        instances = self.constructors.instances()
-        instances2 = constructions.Constructors().instances()
+        instances = self.constructors.instances
+        instances2 = constructions.Constructors().instances
         self.assertEqual(instances, instances2)
 
     def check_all_constructions(self):
@@ -639,14 +685,14 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         constructors
         """
         trivial_solutions = models.GolfBound.objects.filter(submission_info__construction__id='golf_trivial_solution_constructor')
-        self.assertEqual(len(trivial_solutions), len(self.constructors.instances()))
+        self.assertEqual(len(trivial_solutions), len(self.constructors.instances))
         self.check_instance_in_bounds(2, 2, trivial_solutions)
         self.check_instance_in_bounds(20, 2, trivial_solutions)
         self.check_instance_in_bounds(20, 20, trivial_solutions)
         self.check_instance_in_bounds(20, 20, trivial_solutions)
 
         trivial_bounds = models.GolfBound.objects.filter(submission_info__construction__id='golf_trivial_upper_bound_constructor')
-        self.assertEqual(len(trivial_bounds), len(self.constructors.instances()))
+        self.assertEqual(len(trivial_bounds), len(self.constructors.instances))
         self.check_instance_in_bounds(2, 2, trivial_bounds)
         self.check_instance_in_bounds(20, 2, trivial_bounds)
         self.check_instance_in_bounds(20, 20, trivial_bounds)
