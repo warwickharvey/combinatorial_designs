@@ -1,3 +1,5 @@
+import pprint
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -511,6 +513,20 @@ class GolfSolutionMethodTests(TestCase):
         self.instance_4x3 = make_instance(4, 3)
         self.instance_5x4 = make_instance(5, 4)
 
+    def check_solution_validation(self, code, instance, num_rounds, solution_string):
+        solution = models.GolfSolution(
+            instance=instance,
+            num_rounds=num_rounds,
+            submission_info=make_dummy_submission_info(),
+            solution_string=solution_string,
+        )
+        with self.assertRaises(ValidationError):
+            try:
+                solution.save()
+            except ValidationError as e:
+                self.assertIn(code, [x.code for x in e.error_dict['__all__']])
+                raise
+
     def test_as_solution(self):
         """
         as_solution() should return the object itself
@@ -531,26 +547,42 @@ class GolfSolutionMethodTests(TestCase):
         validate_solution_string() should raise a ValidationError if the
         solution does not have enough rounds
         """
-        solution_5x4 = models.GolfSolution(
-            instance=self.instance_5x4,
-            num_rounds=5,
-            submission_info=make_dummy_submission_info(),
-            solution_string=solution_string_5x4_4,
+        self.check_solution_validation(
+            'wrong_number_of_rounds',
+            self.instance_5x4,
+            5,
+            solution_string_5x4_4,
         )
-        self.assertRaises(ValidationError, solution_5x4.save)
 
     def test_validate_too_many_rounds(self):
         """
         validate_solution_string() should raise a ValidationError if the
         solution has too many rounds
         """
-        solution_5x4 = models.GolfSolution(
-            instance=self.instance_5x4,
-            num_rounds=4,
-            submission_info=make_dummy_submission_info(),
-            solution_string=solution_string_5x4_5,
+        self.check_solution_validation(
+            'wrong_number_of_rounds',
+            self.instance_5x4,
+            4,
+            solution_string_5x4_5,
         )
-        self.assertRaises(ValidationError, solution_5x4.save)
+
+    def test_validate_not_enough_groups(self):
+        """
+        validate_solution_string() should raise a ValidationError if a round in
+        the solution does not have enough groups
+        """
+        self.check_solution_validation(
+            'wrong_number_of_groups_in_round',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18
+1,8,12,16|2,11,14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
 
 
 class ConstructorMethodTests(TestCase):
