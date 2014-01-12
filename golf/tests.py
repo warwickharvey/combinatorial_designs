@@ -584,6 +584,114 @@ class GolfSolutionMethodTests(TestCase):
 """.strip(),
         )
 
+    def test_validate_too_many_groups(self):
+        """
+        validate_solution_string() should raise a ValidationError if a round in
+        the solution has too many groups
+        """
+        self.check_solution_validation(
+            'wrong_number_of_groups_in_round',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11|14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
+
+    def test_validate_not_enough_players_in_group(self):
+        """
+        validate_solution_string() should raise a ValidationError if a group in
+        the solution does not have enough players
+        """
+        self.check_solution_validation(
+            'wrong_number_of_players_in_group',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11,14|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
+
+    def test_validate_too_many_players_in_group(self):
+        """
+        validate_solution_string() should raise a ValidationError if a group in
+        the solution has too many players
+        """
+        self.check_solution_validation(
+            'wrong_number_of_players_in_group',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11,14,19,21|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
+
+    def test_validate_player_appearing_twice_in_round(self):
+        """
+        validate_solution_string() should raise a ValidationError if a player
+        appears more than once in a round
+        """
+        self.check_solution_validation(
+            'repeated_player_in_round',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|7,12,14,17
+1,8,12,16|2,11,14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
+
+    def test_validate_pair_appearing_twice_in_solution(self):
+        """
+        validate_solution_string() should raise a ValidationError if a pair of
+        players appears more than once in a solution
+        """
+        self.check_solution_validation(
+            'players_meet_more_than_once',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,17|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11,14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,19|8,9,15,20
+""".strip(),
+        )
+
+    def test_too_many_players_in_solution(self):
+        """
+        validate_solution_string() should raise a ValidationError if a pair of
+        players appears more than once in a solution
+        """
+        self.check_solution_validation(
+            'too_many_players',
+            self.instance_5x4,
+            5,
+            """
+1,2,3,4|5,6,7,8|9,10,11,12|13,14,15,16|17,18,19,20
+1,5,9,13|2,10,15,21|3,8,14,20|4,7,12,19|6,11,16,18
+1,7,11,15|2,9,16,20|3,6,13,19|4,8,10,18|5,12,14,17
+1,8,12,16|2,11,14,19|3,5,15,18|4,6,9,17|7,10,13,20
+1,6,10,14|2,12,13,18|3,7,16,17|4,5,11,20|8,9,15,19
+""".strip(),
+        )
+
 
 class ConstructorMethodTests(TestCase):
 
