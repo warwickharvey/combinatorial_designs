@@ -715,8 +715,7 @@ class TrivialSolutionConstructorMethodTests(ConstructorMethodTests):
         for the instance with the given parameters
         """
         construction = self.construct(num_groups, group_size)
-        # self.assertIsInstance(construction, models.GolfSolution)
-        self.assertIsInstance(construction, models.GolfLowerBound)
+        self.assertIsInstance(construction, models.GolfSolution)
         self.assertEqual(construction.num_rounds, 2)
 
     def test_construct(self):

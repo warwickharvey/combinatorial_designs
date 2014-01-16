@@ -67,9 +67,11 @@ class TrivialSolutionConstructor(Constructor):
     description = 'Trivial two-round construction'
 
     def do_construct(self, instance):
-        # TODO: Actually construct a solution rather than providing just the
-        # bound
-        return models.GolfLowerBound(instance=instance, submission_info=self.submission_info, num_rounds=2)
+        solution = [[[] for _ in xrange(instance.num_groups)] for _ in xrange(2)]
+        for p in xrange(instance.num_players):
+            solution[0][p / instance.group_size].append(p)
+            solution[1][p % instance.num_groups].append(p)
+        return models.GolfSolution(instance=instance, submission_info=self.submission_info, num_rounds=2, solution=solution)
 
 
 class TrivialUpperBoundConstructor(Constructor):
