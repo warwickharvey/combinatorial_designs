@@ -1,6 +1,7 @@
 import pprint
 
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 import models
@@ -852,4 +853,27 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         self.constructors.construct_all()
         self.constructors.construct_all()
         self.check_all_constructions()
+
+
+class GolfViewTests(TestCase):
+    def setUp(self):
+        constructions.Constructors().construct_all()
+
+    def check_instance_in_context(self, num_groups, group_size, context):
+        """
+        Check that the given context contains an entry corresponding to the
+        instance with the given parameters
+        """
+        instance = models.GolfInstance.objects.get(num_groups=num_groups, group_size=group_size)
+        self.assertIn(instance, context['instance_list'])
+
+    def test_index_view(self):
+        """
+        Check that the index view works and contains some instances
+        """
+        response = self.client.get(reverse('golf:index'))
+        self.assertEqual(response.status_code, 200)
+        self.check_instance_in_context(2, 2, response.context)
+        self.check_instance_in_context(20, 2, response.context)
+        self.check_instance_in_context(20, 20, response.context)
 
