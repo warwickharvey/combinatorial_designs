@@ -855,7 +855,7 @@ class ConstructorsMethodTests(ConstructorMethodTests):
         self.check_all_constructions()
 
 
-class GolfViewTests(TestCase):
+class GolfIndexViewTests(TestCase):
     def setUp(self):
         constructions.Constructors().construct_all()
 
@@ -876,4 +876,35 @@ class GolfViewTests(TestCase):
         self.check_instance_in_context(2, 2, response.context)
         self.check_instance_in_context(20, 2, response.context)
         self.check_instance_in_context(20, 20, response.context)
+
+    def test_index_view_sorted(self):
+        """
+        Check that the index view has the instances sorted by group size and
+        then number of groups
+        """
+        response = self.client.get(reverse('golf:index'))
+        instances = response.context['instance_list']
+        previous_instance = instances[0]
+        for instance in instances[1:]:
+            self.assertGreaterEqual(instance.group_size, previous_instance.group_size)
+            if instance.group_size == previous_instance.group_size:
+                self.assertGreaterEqual(instance.num_groups, previous_instance.num_groups)
+            previous_instance = instance
+
+    def test_index_view_bounds(self):
+        """
+        Check that the index view has correct bounds for the group size and
+        number of groups
+        """
+        response = self.client.get(reverse('golf:index'))
+        self.assertIn('group_size__min', response.context)
+        self.assertIn('group_size__max', response.context)
+        self.assertIn('num_groups__min', response.context)
+        self.assertIn('num_groups__max', response.context)
+        instances = response.context['instance_list']
+        for instance in instances:
+            self.assertGreaterEqual(instance.group_size, response.context['group_size__min'])
+            self.assertLessEqual(instance.group_size, response.context['group_size__max'])
+            self.assertGreaterEqual(instance.num_groups, response.context['num_groups__min'])
+            self.assertLessEqual(instance.num_groups, response.context['num_groups__max'])
 
