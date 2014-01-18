@@ -74,6 +74,7 @@ class GolfInstance(models.Model):
         self.full_clean()
         super(GolfInstance, self).save(*args, **kwargs)
 
+    @property
     def name(self):
         """
         Returns a short, unique, meaningful name identifying this instance

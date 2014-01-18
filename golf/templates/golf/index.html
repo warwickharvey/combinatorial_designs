@@ -1,9 +1,13 @@
-{% if instance_list %}
-    <ul>
-    {% for instance in instance_list %}
-        <li><a href="{% url 'golf:detail' instance.num_groups instance.group_size %}">{{ instance.name }}</a></li>
+<table>
+    {% for row in instance_array %}
+        <tr>
+            {% for elem in row %}
+                {% if forloop.first or forloop.parentloop.first %}
+                    <th>{% if elem %}{{ elem }}{% endif %}</th>
+                {% else %}
+                    <td>{% if elem %}<a href="{% url 'golf:detail' elem.num_groups elem.group_size %}">{{ elem.name }}</a>{% endif %}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
     {% endfor %}
-    </ul>
-{% else %}
-    <p>No golf instances are available.</p>
-{% endif %}
+</table>

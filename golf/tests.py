@@ -117,9 +117,9 @@ class GolfInstanceMethodTests(TestCase):
         name() should return a suitable human-readable name for an instance
         """
         instance_3x2 = make_instance(3, 2)
-        self.assertEqual(instance_3x2.name(), '3x2')
+        self.assertEqual(instance_3x2.name, '3x2')
         instance_8x4 = make_instance(8, 4)
-        self.assertEqual(instance_8x4.name(), '8x4')
+        self.assertEqual(instance_8x4.name, '8x4')
 
 
     ##
@@ -859,52 +859,34 @@ class GolfIndexViewTests(TestCase):
     def setUp(self):
         constructions.Constructors().construct_all()
 
-    def check_instance_in_context(self, num_groups, group_size, context):
-        """
-        Check that the given context contains an entry corresponding to the
-        instance with the given parameters
-        """
-        instance = models.GolfInstance.objects.get(num_groups=num_groups, group_size=group_size)
-        self.assertIn(instance, context['instance_list'])
-
     def test_index_view(self):
         """
         Check that the index view works and contains some instances
         """
         response = self.client.get(reverse('golf:index'))
         self.assertEqual(response.status_code, 200)
-        self.check_instance_in_context(2, 2, response.context)
-        self.check_instance_in_context(20, 2, response.context)
-        self.check_instance_in_context(20, 20, response.context)
+        array = response.context['instance_array']
+        self.assertEqual(array[1][1].name, '2x2')
+        self.assertEqual(array[19][1].name, '20x2')
+        self.assertEqual(array[19][19].name, '20x20')
 
-    def test_index_view_sorted(self):
+    def test_index_view_no_left_over_instances(self):
         """
-        Check that the index view has the instances sorted by group size and
-        then number of groups
+        Check that the index view has no left over instances
         """
         response = self.client.get(reverse('golf:index'))
-        instances = response.context['instance_list']
-        previous_instance = instances[0]
-        for instance in instances[1:]:
-            self.assertGreaterEqual(instance.group_size, previous_instance.group_size)
-            if instance.group_size == previous_instance.group_size:
-                self.assertGreaterEqual(instance.num_groups, previous_instance.num_groups)
-            previous_instance = instance
+        self.assertEqual(response.context['left_over_instances'], [])
 
-    def test_index_view_bounds(self):
+    def test_index_view_rows_and_cols_aligned(self):
         """
-        Check that the index view has correct bounds for the group size and
-        number of groups
+        Check that the instances in the index view are in the correct rows and
+        columns
         """
         response = self.client.get(reverse('golf:index'))
-        self.assertIn('group_size__min', response.context)
-        self.assertIn('group_size__max', response.context)
-        self.assertIn('num_groups__min', response.context)
-        self.assertIn('num_groups__max', response.context)
-        instances = response.context['instance_list']
-        for instance in instances:
-            self.assertGreaterEqual(instance.group_size, response.context['group_size__min'])
-            self.assertLessEqual(instance.group_size, response.context['group_size__max'])
-            self.assertGreaterEqual(instance.num_groups, response.context['num_groups__min'])
-            self.assertLessEqual(instance.num_groups, response.context['num_groups__max'])
+        array = response.context['instance_array']
+        for i in xrange(1, len(array)):
+            for j in xrange(1, len(array[i])):
+                if array[i][j]:
+                    self.assertEqual(array[i][j].num_groups, array[i][0])
+                    self.assertEqual(array[i][j].group_size, array[0][j])
 
