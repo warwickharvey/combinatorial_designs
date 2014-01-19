@@ -126,6 +126,7 @@ class GolfInstance(models.Model):
                         break
         return self._lower_bound
 
+    @property
     def solution(self):
         """
         Returns the solution (if known) for the best lower bound for this
@@ -133,6 +134,7 @@ class GolfInstance(models.Model):
         """
         return self.lower_bound.as_solution()
 
+    @property
     def is_closed(self):
         """
         Is a closed instance (upper and lower bounds are the same)
@@ -143,6 +145,19 @@ class GolfInstance(models.Model):
             return False
         else:
             return u.num_rounds == l.num_rounds
+
+    @property
+    def bound_range(self):
+        """
+        Returns a string representation of the range of the bounds on this
+        instance
+        """
+        l = self.lower_bound
+        u = self.upper_bound
+        if l.num_rounds == u.num_rounds:
+            return str(l.num_rounds)
+        else:
+            return u'%d - %d' % (l.num_rounds, u.num_rounds)
 
 
 class DummyBound(object):

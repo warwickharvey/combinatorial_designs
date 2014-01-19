@@ -237,11 +237,11 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_solution_for_undefined_lower_bound(self):
         """
-        solution() should return None if no lower bound defined for
+        solution should return None if no lower bound defined for
         an instance
         """
         instance_5x4 = make_instance(5, 4)
-        self.assertIsNone(instance_5x4.solution())
+        self.assertIsNone(instance_5x4.solution)
 
 
     ##
@@ -250,15 +250,15 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_no_solution_for_undefined_lower_bound(self):
         """
-        solution() should return None if no lower bound defined for
+        solution should return None if no lower bound defined for
         an instance
         """
         instance_5x4 = make_instance(5, 4)
-        self.assertIsNone(instance_5x4.solution())
+        self.assertIsNone(instance_5x4.solution)
 
     def test_no_solution_when_only_lower_bounds(self):
         """
-        solution() should return None if only lower bounds (not solutions) are
+        solution should return None if only lower bounds (not solutions) are
         defined for an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -272,11 +272,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertIsNone(instance_5x4.solution())
+        self.assertIsNone(instance_5x4.solution)
 
     def test_no_solution_when_lower_bound_is_better(self):
         """
-        solution() should return None if a lower bound (not solution) for an
+        solution should return None if a lower bound (not solution) for an
         instance is better than the best solution
         """
         instance_5x4 = make_instance(5, 4)
@@ -291,11 +291,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertIsNone(instance_5x4.solution())
+        self.assertIsNone(instance_5x4.solution)
 
     def test_solution_when_matching_lower_bounds(self):
         """
-        solution() should return a solution if a solution is among the best
+        solution should return a solution if a solution is among the best
         lower bounds for an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -315,12 +315,12 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertIsNotNone(instance_5x4.solution())
-        self.assertEqual(instance_5x4.solution().solution_string, solution_string_5x4_5)
+        self.assertIsNotNone(instance_5x4.solution)
+        self.assertEqual(instance_5x4.solution.solution_string, solution_string_5x4_5)
 
     def test_solution_with_multiple_solutions(self):
         """
-        solution() should return the solution with the highest bound when
+        solution should return the solution with the highest bound when
         multiple solutions are defined for an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -342,9 +342,9 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
             solution_string=solution_string_5x4_4,
         ).save()
-        self.assertIsNotNone(instance_5x4.solution())
-        self.assertEqual(instance_5x4.solution().num_rounds, 5)
-        self.assertEqual(instance_5x4.solution().solution_string, solution_string_5x4_5)
+        self.assertIsNotNone(instance_5x4.solution)
+        self.assertEqual(instance_5x4.solution.num_rounds, 5)
+        self.assertEqual(instance_5x4.solution.solution_string, solution_string_5x4_5)
 
 
     ##
@@ -353,14 +353,14 @@ class GolfInstanceMethodTests(TestCase):
 
     def test_closed_for_undefined_bounds(self):
         """
-        is_closed() should return False if no bounds defined for an instance
+        is_closed should return False if no bounds defined for an instance
         """
         instance_5x4 = make_instance(5, 4)
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
 
     def test_closed_when_only_upper_bound(self):
         """
-        is_closed() should return False if only an upper bound is defined for
+        is_closed should return False if only an upper bound is defined for
         an instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -369,11 +369,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
 
     def test_closed_when_only_lower_bound(self):
         """
-        is_closed() should return False if only a lower bound is defined for an
+        is_closed should return False if only a lower bound is defined for an
         instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -382,11 +382,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
 
     def test_closed_when_only_solution(self):
         """
-        is_closed() should return False if only a solution is defined for an
+        is_closed should return False if only a solution is defined for an
         instance
         """
         instance_5x4 = make_instance(5, 4)
@@ -396,11 +396,11 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
             solution_string=solution_string_5x4_5,
         ).save()
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
 
     def test_closed_when_bounds_match(self):
         """
-        is_closed() should return True if upper and lower bounds are defined
+        is_closed should return True if upper and lower bounds are defined
         for an instance and the bounds match
         """
         instance_5x4 = make_instance(5, 4)
@@ -414,11 +414,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=5,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertTrue(instance_5x4.is_closed())
+        self.assertTrue(instance_5x4.is_closed)
 
     def test_closed_when_bounds_match_with_solution(self):
         """
-        is_closed() should return True if an upper bound and a solution are
+        is_closed should return True if an upper bound and a solution are
         defined for an instance and the bounds match
         """
         instance_5x4 = make_instance(5, 4)
@@ -433,11 +433,11 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
             solution_string=solution_string_5x4_5,
         ).save()
-        self.assertTrue(instance_5x4.is_closed())
+        self.assertTrue(instance_5x4.is_closed)
 
     def test_closed_when_bounds_dont_match(self):
         """
-        is_closed() should return False if upper and lower bounds are defined
+        is_closed should return False if upper and lower bounds are defined
         for an instance but the bounds don't match
         """
         instance_5x4 = make_instance(5, 4)
@@ -451,11 +451,11 @@ class GolfInstanceMethodTests(TestCase):
             num_rounds=4,
             submission_info=make_dummy_submission_info(),
         ).save()
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
 
     def test_closed_when_bounds_dont_match_with_solution(self):
         """
-        is_closed() should return False if an upper bound and a solution are
+        is_closed should return False if an upper bound and a solution are
         defined for an instance but the bounds don't match
         """
         instance_5x4 = make_instance(5, 4)
@@ -470,7 +470,45 @@ class GolfInstanceMethodTests(TestCase):
             submission_info=make_dummy_submission_info(),
             solution_string=solution_string_5x4_4,
         ).save()
-        self.assertFalse(instance_5x4.is_closed())
+        self.assertFalse(instance_5x4.is_closed)
+
+    def test_bound_range_equal(self):
+        """
+        bound_range should return a single (string) value when the instance's
+        bounds are equal
+        """
+        instance_5x4 = make_instance(5, 4)
+        models.GolfUpperBound(
+            instance=instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+        ).save()
+        models.GolfSolution(
+            instance=instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+            solution_string=solution_string_5x4_5,
+        ).save()
+        self.assertEqual(instance_5x4.bound_range, '5')
+
+    def test_bound_range_unequal(self):
+        """
+        bound_range should return a string range when the instance's bounds are
+        not equal
+        """
+        instance_5x4 = make_instance(5, 4)
+        models.GolfUpperBound(
+            instance=instance_5x4,
+            num_rounds=5,
+            submission_info=make_dummy_submission_info(),
+        ).save()
+        models.GolfSolution(
+            instance=instance_5x4,
+            num_rounds=4,
+            submission_info=make_dummy_submission_info(),
+            solution_string=solution_string_5x4_4,
+        ).save()
+        self.assertEqual(instance_5x4.bound_range, '4 - 5')
 
 
 class GolfLowerBoundMethodTests(TestCase):

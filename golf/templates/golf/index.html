@@ -5,7 +5,7 @@
                 {% if forloop.first or forloop.parentloop.first %}
                     <th>{% if elem %}{{ elem }}{% endif %}</th>
                 {% else %}
-                    <td>{% if elem %}<a href="{% url 'golf:detail' elem.num_groups elem.group_size %}">{{ elem.name }}</a>{% endif %}</td>
+                    <td>{% if elem %}<a href="{% url 'golf:detail' elem.num_groups elem.group_size %}">{{ elem.bound_range }}</a>{% endif %}</td>
                 {% endif %}
             {% endfor %}
         </tr>
