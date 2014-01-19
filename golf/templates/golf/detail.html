@@ -6,12 +6,20 @@
     <p><b>Closed</b> instance</p>
 {% endif %}
 
-<p>Lower bound <b>{{ instance.lower_bound.num_rounds }}</b>: {{ instance.lower_bound.submission_info.citation }}
+<p>Lower bound <b>{{ instance.lower_bound.num_rounds }}</b>: {{ instance.lower_bound.submission_info.citation }}</p>
 
-<p>Upper bound <b>{{ instance.upper_bound.num_rounds }}</b>: {{ instance.upper_bound.submission_info.citation }}
+<p>Upper bound <b>{{ instance.upper_bound.num_rounds }}</b>: {{ instance.upper_bound.submission_info.citation }}</p>
 
 {% if instance.solution %}
-    <p>Printing solution not implemented yet.</p>
+    <table border="1">
+        {% for round in instance.solution.solution %}
+            <tr>
+                {% for group in round %}
+                    <td>{{ group|join:", " }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 {% else %}
     <p>Solution not available.</p>
 {% endif %}
