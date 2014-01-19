@@ -1,5 +1,6 @@
 import pprint
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -16,7 +17,7 @@ def make_dummy_user():
     Make a User record when we don't care about the contents
     """
     # TODO: Randomise this so that not all records are the same
-    user = models.User(name='Foo Bar', email='foo@bar.baz')
+    user, _ = User.objects.get_or_create(username='foo', first_name='Foo', last_name='Bar', email='foo@bar.baz')
     user.save()
     return user
 
@@ -734,6 +735,10 @@ class GolfSolutionMethodTests(TestCase):
 
 class ConstructorMethodTests(TestCase):
 
+    def setUp(self):
+        user = User.objects.create_user('warwick', 'warwick.harvey@gmail.com')
+        user.save()
+
     def construct(self, num_groups, group_size):
         """
         Run the constructor's construct() method on the instance with the given
@@ -746,6 +751,7 @@ class ConstructorMethodTests(TestCase):
 class TrivialSolutionConstructorMethodTests(ConstructorMethodTests):
 
     def setUp(self):
+        super(TrivialSolutionConstructorMethodTests, self).setUp()
         self.constructor = constructions.TrivialSolutionConstructor()
 
     def do_test(self, num_groups, group_size):
@@ -772,6 +778,7 @@ class TrivialSolutionConstructorMethodTests(ConstructorMethodTests):
 class TrivialUpperBoundConstructorMethodTests(ConstructorMethodTests):
 
     def setUp(self):
+        super(TrivialUpperBoundConstructorMethodTests, self).setUp()
         self.constructor = constructions.TrivialUpperBoundConstructor()
 
     def do_test(self, num_groups, group_size, num_rounds):
@@ -799,6 +806,7 @@ class TrivialUpperBoundConstructorMethodTests(ConstructorMethodTests):
 class ConstructorsMethodTests(ConstructorMethodTests):
 
     def setUp(self):
+        user = User.objects.create_user('warwick', 'warwick.harvey@gmail.com')
         self.constructors = constructions.Constructors()
 
     def check_instance_in_instances(self, num_groups, group_size, instances):
@@ -895,6 +903,7 @@ class ConstructorsMethodTests(ConstructorMethodTests):
 
 class GolfIndexViewTests(TestCase):
     def setUp(self):
+        user = User.objects.create_user('warwick', 'warwick.harvey@gmail.com')
         constructions.Constructors().construct_all()
 
     def test_index_view(self):

@@ -1,16 +1,10 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
 import gettext
 _ = gettext.gettext
-
-class User(models.Model):
-    name = models.CharField(max_length=80)
-    email = models.EmailField(max_length=254)
-
-    def __unicode__(self):
-        return '%s (%s)' % (self.name, self.email)
 
 
 class Citation(models.Model):

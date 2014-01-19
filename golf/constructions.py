@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 import gettext
 _ = gettext.gettext
 
@@ -21,13 +23,12 @@ class Constructor(object):
             id: A unique string ID
             version: An integer version number
             name: A human-readable name
-            email: An email address for the author/maintainer
+            username: The username of the author/maintainer
             description: A description
         """
         if not self._submission_info:
-            user, _ = models.User.objects.get_or_create(
-                name=self.name,
-                email=self.email,
+            user = User.objects.get(
+                username=self.username,
             )
             citation, _ = models.Citation.objects.get_or_create(citation=self.description)
             construction_info, _ = models.ConstructionInfo.objects.get_or_create(id=self.id, version=self.version)
@@ -63,7 +64,7 @@ class TrivialSolutionConstructor(Constructor):
     id = 'golf_trivial_solution_constructor'
     version = 1
     name = 'Trivial solution constructor'
-    email = 'warwick.harvey@gmail.com'
+    username = 'warwick'
     description = 'Trivial two-round construction'
 
     def do_construct(self, instance):
@@ -82,7 +83,7 @@ class TrivialUpperBoundConstructor(Constructor):
     id = 'golf_trivial_upper_bound_constructor'
     version = 1
     name = 'Trivial upper bound constructor'
-    email = 'warwick.harvey@gmail.com'
+    username = 'warwick'
     description = 'Trivial upper bound'
 
     def do_construct(self, instance):
