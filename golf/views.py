@@ -1,4 +1,7 @@
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.db.models import Min, Max
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
 from golf.models import GolfInstance
@@ -37,4 +40,21 @@ def detail(request, num_groups, group_size):
         'instance': instance,
     }
     return render(request, 'golf/detail.html', context)
+
+def submit_upper_bound(request, num_groups, group_size):
+    """
+    Allow submission of a new upper bound
+    """
+    instance = get_object_or_404(GolfInstance, num_groups=num_groups, group_size=group_size)
+    if request.method == 'POST':
+        upper_bound = request.POST['num_rounds']
+        messages.info(request, 'You submitted an upper bound of %s.' % upper_bound)
+        return HttpResponseRedirect(reverse('golf:detail', args=(num_groups, group_size)))
+    else:
+        instance = get_object_or_404(GolfInstance, num_groups=num_groups, group_size=group_size)
+        context = {
+            'instance': instance,
+        }
+        return render(request, 'golf/submit_upper_bound.html', context)
+
 

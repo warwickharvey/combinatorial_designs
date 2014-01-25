@@ -1,5 +1,13 @@
 <h1>Golf {{ instance.name }}</h1>
 
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <p>{{ instance.num_groups }} groups of {{ instance.group_size }}</p>
 
 {% if instance.is_closed %}

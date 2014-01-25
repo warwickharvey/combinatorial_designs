@@ -1,0 +1,22 @@
+<h1>Golf {{ instance.name }}</h1>
+
+<p>{{ instance.num_groups }} groups of {{ instance.group_size }}</p>
+
+{% if instance.is_closed %}
+    <p><b>Closed</b> instance</p>
+{% endif %}
+
+<p>Lower bound <b>{{ instance.lower_bound.num_rounds }}</b>: {{ instance.lower_bound.submission_info.citation }}</p>
+
+<p>Upper bound <b>{{ instance.upper_bound.num_rounds }}</b>: {{ instance.upper_bound.submission_info.citation }}</p>
+
+{% if instance.is_closed %}
+    <p>Instance is closed, so it is not possible to submit a new upper bound.</p>
+{% else %}
+    <form action="{% url 'golf:submit_upper_bound' instance.num_groups instance.group_size %}" method="post">
+        {% csrf_token %}
+        <label for="num_rounds">Number of rounds</label>
+        <input type="text" name="num_rounds"><br />
+        <input type="submit" value="Submit" />
+    </form>
+{% endif %}
